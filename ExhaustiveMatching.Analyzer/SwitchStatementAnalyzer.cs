@@ -93,41 +93,17 @@ namespace ExhaustiveMatching.Analyzer
 
             CheckForNonPatternCases(context, switchLabels);
 
-            var closedAttributeType = context.GetClosedAttributeType();
-            var isClosed = type.HasAttribute(closedAttributeType);
-
-            var allCases = type.GetClosedTypeCases(closedAttributeType);
-            var allConcreteTypes = allCases
-                .Where(t => t.IsConcreteOrLeaf(closedAttributeType));
-
-            if (!isClosed && type.TryGetStructurallyClosedTypeCases(context, out allCases))
-            {
-                isClosed = true;
-                allConcreteTypes = allCases
-                    .Where(t => t.IsConcrete());
-            }
-
-            var typesUsed = switchLabels
-                .Select(switchLabel => switchLabel.GetMatchedTypeSymbol(context, type, allCases, isClosed))
-                .Where(t => t != null) // returns null for invalid case clauses
-                .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-
-            // If it is an open type, we don't want to actually check for uncovered types, but
-            // we still needed to check the switch cases
-            if (!isClosed)
-            {
-                context.ReportOpenTypeNotSupported(type, switchStatement.Expression);
-                return; // No point in trying to check for uncovered types, this isn't closed
-            }
-
-            if (nullRequired && !switchLabels.Any(IsNullLabel))
-                context.ReportNotExhaustiveNullableObjectSwitch(switchStatement.SwitchKeyword);
-
-            var uncoveredTypes = allConcreteTypes
-                .Where(t => !typesUsed.Any(t.IsSubtypeOf))
-                .ToArray();
-
-            context.ReportNotExhaustiveObjectSwitch(switchStatement.SwitchKeyword, uncoveredTypes);
+            ClosedSwitchAnalyzer.Analyze(
+                context,
+                type,
+                switchStatement.SwitchKeyword,
+                switchStatement.Expression,
+                nullRequired,
+                switchLabels.Any(IsNullLabel),
+                (allCases, isClosed) => switchLabels
+                    .Select(switchLabel => switchLabel.GetMatchedTypeSymbol(context, type, allCases, isClosed))
+                    .Where(t => t != null) // returns null for invalid case clauses
+                    .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.Default));
         }
 
         private static bool IsNullLabel(SwitchLabelSyntax switchLabel)

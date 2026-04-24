@@ -80,41 +80,17 @@ namespace ExhaustiveMatching.Analyzer
             var patterns = switchExpression.Arms.Select(a => a.Pattern).ToList();
             var nullRequired = context.IsNullableReferenceType(switchExpression.GoverningExpression);
 
-            var closedAttributeType = context.GetClosedAttributeType();
-            var isClosed = type.HasAttribute(closedAttributeType);
-
-            var allCases = type.GetClosedTypeCases(closedAttributeType);
-            var allConcreteTypes = allCases
-                .Where(t => t.IsConcreteOrLeaf(closedAttributeType));
-
-            if (!isClosed && type.TryGetStructurallyClosedTypeCases(context, out allCases))
-            {
-                isClosed = true;
-                allConcreteTypes = allCases
-                    .Where(t => t.IsConcrete());
-            }
-
-            var typesUsed = patterns
-                .Select(pattern => pattern.GetMatchedTypeSymbol(context, type, allCases, isClosed))
-                .Where(t => t != null) // returns null for invalid case clauses
-                .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-
-            // If it is an open type, we don't want to actually check for uncovered types, but
-            // we still needed to check the switch cases
-            if (!isClosed)
-            {
-                context.ReportOpenTypeNotSupported(type, switchExpression.GoverningExpression);
-                return; // No point in trying to check for uncovered types, this isn't closed
-            }
-
-            if (nullRequired && !patterns.Any(PatternSyntaxExtensions.IsNullPattern))
-                context.ReportNotExhaustiveNullableObjectSwitch(switchExpression.SwitchKeyword);
-
-            var uncoveredTypes = allConcreteTypes
-                .Where(t => !typesUsed.Any(t.IsSubtypeOf))
-                .ToArray();
-
-            context.ReportNotExhaustiveObjectSwitch(switchExpression.SwitchKeyword, uncoveredTypes);
+            ClosedSwitchAnalyzer.Analyze(
+                context,
+                type,
+                switchExpression.SwitchKeyword,
+                switchExpression.GoverningExpression,
+                nullRequired,
+                patterns.Any(PatternSyntaxExtensions.IsNullPattern),
+                (allCases, isClosed) => patterns
+                    .Select(pattern => pattern.GetMatchedTypeSymbol(context, type, allCases, isClosed))
+                    .Where(t => t != null) // returns null for invalid case clauses
+                    .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.Default));
         }
     }
 }
