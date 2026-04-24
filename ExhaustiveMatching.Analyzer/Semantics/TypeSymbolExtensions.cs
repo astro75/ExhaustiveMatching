@@ -11,22 +11,25 @@ namespace ExhaustiveMatching.Analyzer.Semantics
     {
         public static bool IsSubtypeOf(this ITypeSymbol symbol, ITypeSymbol type)
         {
-            return symbol.Equals(type) || symbol.Implements(type) || symbol.InheritsFrom(type);
+            return SymbolEqualityComparer.Default.Equals(symbol, type)
+                   || symbol.Implements(type)
+                   || symbol.InheritsFrom(type);
         }
 
         public static bool IsDirectSubtypeOf(this ITypeSymbol symbol, ITypeSymbol type)
         {
-            return symbol.DirectlyImplements(type) || Equals(symbol.BaseType, type);
+            return symbol.DirectlyImplements(type)
+                   || SymbolEqualityComparer.Default.Equals(symbol.BaseType, type);
         }
 
         public static bool DirectlyImplements(this ITypeSymbol symbol, ITypeSymbol type)
         {
-            return symbol.Interfaces.Any(type.Equals);
+            return symbol.Interfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, type));
         }
 
         public static bool Implements(this ITypeSymbol symbol, ITypeSymbol type)
         {
-            return symbol.AllInterfaces.Any(type.Equals);
+            return symbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, type));
         }
 
         public static IEnumerable<INamedTypeSymbol> BaseClasses(this ITypeSymbol symbol)
@@ -41,7 +44,7 @@ namespace ExhaustiveMatching.Analyzer.Semantics
 
         public static bool InheritsFrom(this ITypeSymbol symbol, ITypeSymbol type)
         {
-            return symbol.BaseClasses().Any(t => t.Equals(type));
+            return symbol.BaseClasses().Any(t => SymbolEqualityComparer.Default.Equals(t, type));
         }
 
         public static bool IsDirectSubtypeOfTypeWithAttribute(
@@ -54,7 +57,8 @@ namespace ExhaustiveMatching.Analyzer.Semantics
 
         public static bool HasAttribute(this ITypeSymbol symbol, INamedTypeSymbol attributeType)
         {
-            return symbol.GetAttributes().Any(a => a.AttributeClass.Equals(attributeType));
+            return symbol.GetAttributes()
+                .Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
         }
 
         public static IEnumerable<TypeSyntax> GetCaseTypeSyntaxes(
@@ -62,7 +66,7 @@ namespace ExhaustiveMatching.Analyzer.Semantics
             INamedTypeSymbol closedAttributeType)
         {
             return type.GetAttributes()
-                       .Where(attr => attr.AttributeClass.Equals(closedAttributeType))
+                       .Where(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, closedAttributeType))
                        .Select(attr => attr.ApplicationSyntaxReference.GetSyntax()).Cast<AttributeSyntax>()
                        .SelectMany(attr => attr.ArgumentList.Arguments)
                        .Select(arg => arg.Expression)
@@ -78,7 +82,7 @@ namespace ExhaustiveMatching.Analyzer.Semantics
             INamedTypeSymbol closedAttributeType)
         {
             return type.GetAttributes()
-                       .Where(a => a.AttributeClass.Equals(closedAttributeType))
+                       .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, closedAttributeType))
                        .SelectMany(a => a.ConstructorArguments)
                        .SelectMany(GetTypeConstants)
                        .Select(arg => arg.Value)
@@ -137,7 +141,7 @@ namespace ExhaustiveMatching.Analyzer.Semantics
             this ITypeSymbol rootType,
             INamedTypeSymbol closedAttributeType)
         {
-            var types = new HashSet<ITypeSymbol>();
+            var types = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
             var queue = new Queue<ITypeSymbol>();
             queue.Enqueue(rootType);
 
@@ -180,7 +184,7 @@ namespace ExhaustiveMatching.Analyzer.Semantics
 
         public static bool TryGetStructurallyClosedTypeCases(this ITypeSymbol rootType, SyntaxNodeAnalysisContext context, out HashSet<ITypeSymbol> allCases)
         {
-            allCases = new HashSet<ITypeSymbol>();
+            allCases = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
 
             if (rootType is INamedTypeSymbol namedType
                 && rootType.TypeKind != TypeKind.Error

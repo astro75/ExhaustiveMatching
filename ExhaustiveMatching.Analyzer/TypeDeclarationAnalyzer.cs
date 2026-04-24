@@ -52,7 +52,7 @@ namespace ExhaustiveMatching.Analyzer
             foreach (var superType in closedSuperTypes)
             {
                 var isMember = superType.GetCaseTypes(closedAttribute)
-                                .Any(t => t.Equals(typeSymbol));
+                                .Any(t => SymbolEqualityComparer.Default.Equals(t, typeSymbol));
                 if (isMember)
                     continue;
 
@@ -101,7 +101,7 @@ namespace ExhaustiveMatching.Analyzer
               {
                   var constructorSymbol = context.GetSymbol(a);
                   var attributeSymbol = constructorSymbol?.ContainingSymbol;
-                  return closedAttribute.Equals(attributeSymbol);
+                  return SymbolEqualityComparer.Default.Equals(closedAttribute, attributeSymbol);
               }).ToList();
 
             return closedAttributes;
@@ -126,7 +126,7 @@ namespace ExhaustiveMatching.Analyzer
                         .Select(e => e.Type);
 
             var duplicates = typeSyntaxes
-                             .GroupBy(t => context.GetSymbol(t))
+                             .GroupBy(t => context.GetSymbol(t), SymbolEqualityComparer.Default)
                              .SelectMany(g => g.Skip(1).Select(type => (g.Key, type)));
 
             foreach (var (symbol, syntax) in duplicates)
@@ -170,12 +170,12 @@ namespace ExhaustiveMatching.Analyzer
                     var caseType = context.SemanticModel.GetTypeInfo(caseTypeSyntax).Type;
 
                     if (caseType == null
-                        || typeSymbol.Equals(caseType.BaseType) // BaseType is null for interfaces, avoid calling method on it
-                        || caseType.Interfaces.Any(i => i.Equals(typeSymbol)))
+                        || SymbolEqualityComparer.Default.Equals(typeSymbol, caseType.BaseType) // BaseType is null for interfaces, avoid calling method on it
+                        || caseType.Interfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, typeSymbol)))
                         continue;
 
                     if (caseType.InheritsFrom(typeSymbol)
-                        || caseType.AllInterfaces.Any(i => i.Equals(typeSymbol)))
+                        || caseType.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, typeSymbol)))
                     {
                         // It's a subtype, just not a direct one
                         var diagnostic = Diagnostic.Create(Diagnostics.MustBeDirectSubtype,

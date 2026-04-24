@@ -31,7 +31,7 @@ namespace ExhaustiveMatching.Analyzer.Enums.Semantics
                     return true;
                 case TypeKind.Struct:
                     var nullableType = context.Compilation.GetTypeByMetadataName(TypeNames.Nullable);
-                    if (type.OriginalDefinition.Equals(nullableType))
+                    if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, nullableType))
                     {
                         type = ((INamedTypeSymbol)type).TypeArguments.Single();
                         if (type.TypeKind == TypeKind.Enum)

@@ -97,7 +97,7 @@ namespace ExhaustiveMatching.Analyzer
             var typesUsed = patterns
                 .Select(pattern => pattern.GetMatchedTypeSymbol(context, type, allCases, isClosed))
                 .Where(t => t != null) // returns null for invalid case clauses
-                .ToImmutableHashSet();
+                .ToImmutableHashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
 
             // If it is an open type, we don't want to actually check for uncovered types, but
             // we still needed to check the switch cases
