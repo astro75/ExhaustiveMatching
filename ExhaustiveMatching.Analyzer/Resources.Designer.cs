@@ -140,6 +140,33 @@ namespace ExhaustiveMatching.Analyzer {
                 return ResourceManager.GetString("EM0003Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A switch on a nullable closed reference type marked as exhaustive by throwing ExhaustiveMatchFailedException is not exhaustive. It omits null from the cases..
+        /// </summary>
+        internal static string EM0004Description {
+            get {
+                return ResourceManager.GetString("EM0004Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to null value not handled by switch.
+        /// </summary>
+        internal static string EM0004Message {
+            get {
+                return ResourceManager.GetString("EM0004Message", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Switch on Nullable Closed Type Not Exhaustive.
+        /// </summary>
+        internal static string EM0004Title {
+            get {
+                return ResourceManager.GetString("EM0004Title", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to A concrete subtype of a type marked with the &quot;Closed&quot; attribute must be a case of the closed type..

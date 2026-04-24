@@ -89,6 +89,7 @@ namespace ExhaustiveMatching.Analyzer
         {
             var switchLabels = switchStatement
                 .Sections.SelectMany(s => s.Labels).ToList();
+            var nullRequired = context.IsNullableReferenceType(switchStatement.Expression);
 
             CheckForNonPatternCases(context, switchLabels);
 
@@ -119,11 +120,27 @@ namespace ExhaustiveMatching.Analyzer
                 return; // No point in trying to check for uncovered types, this isn't closed
             }
 
+            if (nullRequired && !switchLabels.Any(IsNullLabel))
+                context.ReportNotExhaustiveNullableObjectSwitch(switchStatement.SwitchKeyword);
+
             var uncoveredTypes = allConcreteTypes
                 .Where(t => !typesUsed.Any(t.IsSubtypeOf))
                 .ToArray();
 
             context.ReportNotExhaustiveObjectSwitch(switchStatement.SwitchKeyword, uncoveredTypes);
+        }
+
+        private static bool IsNullLabel(SwitchLabelSyntax switchLabel)
+        {
+            switch (switchLabel)
+            {
+                case CaseSwitchLabelSyntax caseSwitchLabel:
+                    return caseSwitchLabel.IsNullCase();
+                case CasePatternSwitchLabelSyntax casePatternSwitchLabel:
+                    return casePatternSwitchLabel.Pattern.IsNullPattern();
+                default:
+                    return false;
+            }
         }
 
         private static void CheckForNonPatternCases(

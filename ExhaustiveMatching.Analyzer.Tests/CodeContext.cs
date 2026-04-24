@@ -64,6 +64,37 @@ namespace TestNamespace
             return string.Format(context, args, body);
         }
 
+        public static string NullableShapes(string args, string body)
+        {
+            const string context = @"#nullable enable
+using System;
+using System.ComponentModel; // InvalidEnumArgumentException
+using ExhaustiveMatching;
+using TestNamespace;
+
+class TestClass
+{{
+    void TestMethod({0})
+    {{{1}
+    }}
+}}
+
+namespace TestNamespace
+{{
+    [Closed(
+        typeof(Square),
+        typeof(Circle),
+        typeof(Triangle))]
+    public abstract class Shape {{ }}
+    public class Square : Shape {{ }}
+    public class Circle : Shape {{ }}
+    public abstract class Triangle : Shape {{ }} // abstract to show abstract leaf types are checked
+    public class EquilateralTriangle : Triangle {{ }}
+    public class IsoscelesTriangle : Triangle {{ }}
+}}";
+            return string.Format(context, args, body);
+        }
+
         public static string Result(string args, string body)
         {
             const string context = @"using System;

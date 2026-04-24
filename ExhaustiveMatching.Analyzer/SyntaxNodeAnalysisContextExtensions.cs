@@ -22,7 +22,24 @@ namespace ExhaustiveMatching.Analyzer
                 context.ReportDiagnostic(diagnostic);
             }
         }
+
+        public static void ReportNotExhaustiveNullableObjectSwitch(
+            this SyntaxNodeAnalysisContext context,
+            SyntaxToken switchKeyword)
+            => Diagnostics.ReportNotExhaustiveNullableObjectSwitch(context, switchKeyword);
         #endregion
+
+        public static bool IsNullableReferenceType(
+            this SyntaxNodeAnalysisContext context,
+            ExpressionSyntax expression)
+        {
+            var typeInfo = context.SemanticModel.GetTypeInfo(expression, context.CancellationToken);
+            var type = typeInfo.ConvertedType ?? typeInfo.Type;
+
+            return type?.IsReferenceType == true
+                   && (type.NullableAnnotation == NullableAnnotation.Annotated
+                       || typeInfo.Nullability.Annotation == NullableAnnotation.Annotated);
+        }
 
         #region Report Switch Diagnostics
         public static void ReportCasePatternNotSupported(

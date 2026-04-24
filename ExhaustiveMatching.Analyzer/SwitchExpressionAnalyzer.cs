@@ -78,6 +78,7 @@ namespace ExhaustiveMatching.Analyzer
             ITypeSymbol type)
         {
             var patterns = switchExpression.Arms.Select(a => a.Pattern).ToList();
+            var nullRequired = context.IsNullableReferenceType(switchExpression.GoverningExpression);
 
             var closedAttributeType = context.GetClosedAttributeType();
             var isClosed = type.HasAttribute(closedAttributeType);
@@ -105,6 +106,9 @@ namespace ExhaustiveMatching.Analyzer
                 context.ReportOpenTypeNotSupported(type, switchExpression.GoverningExpression);
                 return; // No point in trying to check for uncovered types, this isn't closed
             }
+
+            if (nullRequired && !patterns.Any(PatternSyntaxExtensions.IsNullPattern))
+                context.ReportNotExhaustiveNullableObjectSwitch(switchExpression.SwitchKeyword);
 
             var uncoveredTypes = allConcreteTypes
                 .Where(t => !typesUsed.Any(t.IsSubtypeOf))

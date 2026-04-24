@@ -12,7 +12,8 @@ namespace ExhaustiveMatching.Analyzer
     {
         public static ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(NotExhaustiveEnumSwitch, NotExhaustiveNullableEnumSwitch,
-                NotExhaustiveObjectSwitch, ConcreteSubtypeMustBeCaseOfClosedType,
+                NotExhaustiveObjectSwitch, NotExhaustiveNullableObjectSwitch,
+                ConcreteSubtypeMustBeCaseOfClosedType,
                 MustBeDirectSubtype, MustBeSubtype, SubtypeMustBeCovered,
                 OpenInterfaceSubtypeMustBeCaseOfClosedType, WhenGuardNotSupported,
                 CasePatternNotSupported, OpenTypeNotSupported,
@@ -55,6 +56,12 @@ namespace ExhaustiveMatching.Analyzer
             context.ReportDiagnostic(Diagnostic.Create(NotExhaustiveNullableEnumSwitch,
                 switchStatement.SwitchKeyword.GetLocation()));
 
+        public static void ReportNotExhaustiveNullableObjectSwitch(
+            SyntaxNodeAnalysisContext context,
+            SyntaxToken switchKeyword) =>
+            context.ReportDiagnostic(Diagnostic.Create(NotExhaustiveNullableObjectSwitch,
+                switchKeyword.GetLocation()));
+
         private static readonly LocalizableString EM0001Title = LoadString(nameof(Resources.EM0001Title));
         private static readonly LocalizableString EM0001Message = LoadString(nameof(Resources.EM0001Message));
         private static readonly LocalizableString EM0001Description = LoadString(Resources.EM0001Description);
@@ -64,6 +71,9 @@ namespace ExhaustiveMatching.Analyzer
         private static readonly LocalizableString EM0003Title = LoadString(nameof(Resources.EM0003Title));
         private static readonly LocalizableString EM0003Message = LoadString(nameof(Resources.EM0003Message));
         private static readonly LocalizableString EM0003Description = LoadString(Resources.EM0003Description);
+        private static readonly LocalizableString EM0004Title = LoadString(nameof(Resources.EM0004Title));
+        private static readonly LocalizableString EM0004Message = LoadString(nameof(Resources.EM0004Message));
+        private static readonly LocalizableString EM0004Description = LoadString(Resources.EM0004Description);
         private static readonly LocalizableString EM0011Title = LoadString(nameof(Resources.EM0011Title));
         private static readonly LocalizableString EM0011Message = LoadString(nameof(Resources.EM0011Message));
         private static readonly LocalizableString EM0011Description = LoadString(Resources.EM0011Description);
@@ -111,6 +121,10 @@ namespace ExhaustiveMatching.Analyzer
         public static readonly DiagnosticDescriptor NotExhaustiveObjectSwitch =
             new DiagnosticDescriptor("EM0003", EM0003Title, EM0003Message, Category,
                 DiagnosticSeverity.Error, isEnabledByDefault: true, EM0003Description);
+
+        public static readonly DiagnosticDescriptor NotExhaustiveNullableObjectSwitch =
+            new DiagnosticDescriptor("EM0004", EM0004Title, EM0004Message, Category,
+                DiagnosticSeverity.Error, isEnabledByDefault: true, EM0004Description);
 
         public static readonly DiagnosticDescriptor ConcreteSubtypeMustBeCaseOfClosedType =
             new DiagnosticDescriptor("EM0011", EM0011Title, EM0011Message, Category,

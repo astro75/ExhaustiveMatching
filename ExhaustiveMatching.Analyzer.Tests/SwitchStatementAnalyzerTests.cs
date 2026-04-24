@@ -162,6 +162,59 @@ namespace ExhaustiveMatching.Analyzer.Tests
         }
 
         [Fact]
+        public async Task ExhaustiveObjectSwitchOnNullableReferenceRequiresNull()
+        {
+            const string args = "Shape? shape";
+            const string test = @"
+        ◊1⟦switch⟧ (shape)
+        {
+            case Square square:
+                Console.WriteLine(""Square: "" + square);
+                break;
+            case Circle circle:
+                Console.WriteLine(""Circle: "" + circle);
+                break;
+            case Triangle triangle:
+                Console.WriteLine(""Triangle: "" + triangle);
+                break;
+            default:
+                throw ExhaustiveMatch.Failed(shape);
+        }";
+
+            var source = CodeContext.NullableShapes(args, test);
+            var expected = DiagnosticResult.Error("EM0004", "null value not handled by switch")
+                                           .AddLocation(source, 1);
+
+            await VerifyCSharpDiagnosticsAsync(source, expected);
+        }
+
+        [Fact]
+        public async Task ExhaustiveObjectSwitchOnNullableReferenceAllowsNull()
+        {
+            const string args = "Shape? shape";
+            const string test = @"
+        switch (shape)
+        {
+            case Square square:
+                Console.WriteLine(""Square: "" + square);
+                break;
+            case Circle circle:
+                Console.WriteLine(""Circle: "" + circle);
+                break;
+            case Triangle triangle:
+                Console.WriteLine(""Triangle: "" + triangle);
+                break;
+            case null:
+                Console.WriteLine(""null"");
+                break;
+            default:
+                throw ExhaustiveMatch.Failed(shape);
+        }";
+
+            await VerifyCSharpDiagnosticsAsync(CodeContext.NullableShapes(args, test));
+        }
+
+        [Fact]
         public async Task ExhaustiveObjectSwitchAllowsLabelSyntax()
         {
             const string args = "Shape shape";

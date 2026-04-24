@@ -106,6 +106,43 @@ namespace ExhaustiveMatching.Analyzer.Tests
         }
 
         [Fact]
+        public async Task ExhaustiveObjectSwitchOnNullableReferenceRequiresNull()
+        {
+            const string args = "Shape? shape";
+            const string test = @"
+        var result = shape ◊1⟦switch⟧
+        {
+            Square square => ""Square: "" + square,
+            Circle circle => ""Circle: "" + circle,
+            Triangle triangle => ""Triangle: "" + triangle,
+            _ => throw ExhaustiveMatch.Failed(shape),
+        };";
+
+            var source = CodeContext.NullableShapes(args, test);
+            var expected = DiagnosticResult.Error("EM0004", "null value not handled by switch")
+                                           .AddLocation(source, 1);
+
+            await VerifyCSharpDiagnosticsAsync(source, expected);
+        }
+
+        [Fact]
+        public async Task ExhaustiveObjectSwitchOnNullableReferenceAllowsNull()
+        {
+            const string args = "Shape? shape";
+            const string test = @"
+        var result = shape switch
+        {
+            Square square => ""Square: "" + square,
+            Circle circle => ""Circle: "" + circle,
+            Triangle triangle => ""Triangle: "" + triangle,
+            null => ""null"",
+            _ => throw ExhaustiveMatch.Failed(shape),
+        };";
+
+            await VerifyCSharpDiagnosticsAsync(CodeContext.NullableShapes(args, test));
+        }
+
+        [Fact]
         public async Task ExhaustiveObjectSwitchAllowsLiteralTypeExpressionSyntax()
         {
             const string args = "Shape shape";
