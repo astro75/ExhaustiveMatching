@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Examples</RootNamespace>
     <LangVersion>9.0</LangVersion>
+    <NoWarn>$(NoWarn);EM0001;EM0003</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
