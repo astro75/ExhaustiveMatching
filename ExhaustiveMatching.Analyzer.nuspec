@@ -30,7 +30,6 @@ hierarchies.
     <file src="ExhaustiveMatching/bin/Release/netstandard2.0/ExhaustiveMatching.dll" target="lib/netstandard2.0" />
     <file src="ExhaustiveMatching/bin/Release/netstandard2.0/ExhaustiveMatching.pdb" target="lib/netstandard2.0" />
     <file src="ExhaustiveMatching.Analyzer/bin/Release/netstandard2.0/ExhaustiveMatching.Analyzer.dll" target="analyzers/netstandard2.0/cs" />
-    <file src="ExhaustiveMatching.Analyzer.Enums/bin/Release/netstandard2.0/ExhaustiveMatching.Analyzer.Enums.dll" target="analyzers/netstandard2.0/cs" />
     <file src="ExhaustiveMatching.Analyzer/tools/install.ps1" target="tools" />
     <file src="ExhaustiveMatching.Analyzer/tools/uninstall.ps1" target="tools" />
   </files>

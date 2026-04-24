@@ -42,7 +42,6 @@ try {
     $requiredEntries = @(
         "lib/netstandard2.0/ExhaustiveMatching.dll",
         "analyzers/netstandard2.0/cs/ExhaustiveMatching.Analyzer.dll",
-        "analyzers/netstandard2.0/cs/ExhaustiveMatching.Analyzer.Enums.dll",
         "tools/install.ps1",
         "tools/uninstall.ps1"
     )
@@ -50,6 +49,16 @@ try {
     foreach ($entry in $requiredEntries) {
         if ($entries -notcontains $entry) {
             throw "Package is missing required entry: $entry"
+        }
+    }
+
+    $removedEntries = @(
+        "analyzers/netstandard2.0/cs/ExhaustiveMatching.Analyzer.Enums.dll"
+    )
+
+    foreach ($entry in $removedEntries) {
+        if ($entries -contains $entry) {
+            throw "Package contains removed separate analyzer entry: $entry"
         }
     }
 }

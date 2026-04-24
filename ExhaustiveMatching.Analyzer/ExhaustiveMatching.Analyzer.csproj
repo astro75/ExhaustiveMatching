@@ -16,13 +16,11 @@
 
   <ItemGroup>
     <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+    <Compile Include="..\ExhaustiveMatching.Analyzer.Enums\**\*.cs" Exclude="..\ExhaustiveMatching.Analyzer.Enums\bin\**;..\ExhaustiveMatching.Analyzer.Enums\obj\**" LinkBase="Enums" />
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
+    <EmbeddedResource Include="..\ExhaustiveMatching.Analyzer.Enums\Resources.resx" LogicalName="ExhaustiveMatching.Analyzer.Enums.Resources.resources" Link="Enums\Resources.resx" />
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ExhaustiveMatching.Analyzer.Enums\ExhaustiveMatching.Analyzer.Enums.csproj" />
   </ItemGroup>
 
 </Project>
