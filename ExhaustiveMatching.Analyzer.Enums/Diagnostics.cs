@@ -20,6 +20,12 @@ namespace ExhaustiveMatching.Analyzer.Enums
             IEnumerable<ISymbol> unusedSymbols)
             => ReportNotExhaustiveEnumSwitch(context, switchStatement.SwitchKeyword, unusedSymbols);
 
+        public static void ReportNotExhaustiveEnumSwitch(
+            SyntaxNodeAnalysisContext context,
+            SwitchExpressionSyntax switchExpression,
+            IEnumerable<ISymbol> unusedSymbols)
+            => ReportNotExhaustiveEnumSwitch(context, switchExpression.SwitchKeyword, unusedSymbols);
+
         private static void ReportNotExhaustiveEnumSwitch(
             SyntaxNodeAnalysisContext context,
             SyntaxToken switchKeyword,
@@ -40,11 +46,23 @@ namespace ExhaustiveMatching.Analyzer.Enums
             => context.ReportDiagnostic(Diagnostic.Create(NotExhaustiveNullableEnumSwitch,
                 switchStatement.SwitchKeyword.GetLocation()));
 
+        public static void ReportNotExhaustiveNullableEnumSwitch(
+            SyntaxNodeAnalysisContext context,
+            SwitchExpressionSyntax switchExpression)
+            => context.ReportDiagnostic(Diagnostic.Create(NotExhaustiveNullableEnumSwitch,
+                switchExpression.SwitchKeyword.GetLocation()));
+
         public static void ReportCasePatternNotSupported(
             SyntaxNodeAnalysisContext context,
             SwitchLabelSyntax switchLabel)
             => context.ReportDiagnostic(Diagnostic.Create(CasePatternNotSupported,
                 switchLabel.GetLocation(), switchLabel));
+
+        public static void ReportCasePatternNotSupported(
+            SyntaxNodeAnalysisContext context,
+            PatternSyntax pattern)
+            => context.ReportDiagnostic(Diagnostic.Create(CasePatternNotSupported,
+                pattern.GetLocation(), pattern));
 
         private static readonly LocalizableString EM0001Title = LoadString(nameof(Resources.EM0001Title));
         private static readonly LocalizableString EM0001Message = LoadString(nameof(Resources.EM0001Message));

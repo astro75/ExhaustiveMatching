@@ -20,7 +20,7 @@ namespace ExhaustiveMatching.Analyzer.Enums
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze
                                                    | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.RegisterSyntaxNodeAction(AnalyzeSwitchStatement, SyntaxKind.SwitchStatement);
-            //context.RegisterSyntaxNodeAction(AnalyzeSwitchExpression, SyntaxKind.SwitchExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeSwitchExpression, SyntaxKind.SwitchExpression);
         }
 
         private void AnalyzeSwitchStatement(SyntaxNodeAnalysisContext context)
@@ -31,6 +31,24 @@ namespace ExhaustiveMatching.Analyzer.Enums
             try
             {
                 EnumSwitchStatementAnalyzer.Analyze(context, switchStatement);
+            }
+            catch (Exception ex)
+            {
+                // Include stack trace info by ToString() the exception as part of the message.
+                // Only the first line is included, so we have to remove newlines
+                var exDetails = Regex.Replace(ex.ToString(), @"\r\n?|\n|\r", " ");
+                throw new Exception($"Uncaught exception in analyzer: {exDetails}");
+            }
+        }
+
+        private void AnalyzeSwitchExpression(SyntaxNodeAnalysisContext context)
+        {
+            if (!(context.Node is SwitchExpressionSyntax switchExpression))
+                throw new InvalidOperationException(
+                    $"{nameof(AnalyzeSwitchExpression)} called with a non-switch expression context");
+            try
+            {
+                EnumSwitchExpressionAnalyzer.Analyze(context, switchExpression);
             }
             catch (Exception ex)
             {
